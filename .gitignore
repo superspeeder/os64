@@ -1,0 +1,6 @@
+.zig-cache
+zig-out
+*.iso
+*.o
+*.elf
+isodir/
