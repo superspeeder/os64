@@ -216,6 +216,11 @@ get_pml4t_addr:
     mov rax, pml4t
     ret
 
+global get_cr2
+get_cr2:
+    mov rax, cr2
+    ret
+
 
 [section .bss]
 align 4096

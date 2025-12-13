@@ -136,7 +136,15 @@ pub export fn isr_handler(r: Registers) callconv(.c) void {
         std.log.debug("scpb: {b:08}", .{pb});
         //asm volatile ("hlt");
     }
+
+    if (r.int_no == 14) {
+        const cr2 = get_cr2();
+        std.log.debug("Page fault address: {x:016}", .{cr2});
+        asm volatile ("hlt");
+    }
 }
+
+extern fn get_cr2() callconv(.c) u64;
 
 pub const IRQ0 = 32;
 pub const IRQ1 = 33;

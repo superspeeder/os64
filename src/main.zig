@@ -4,6 +4,7 @@ const multiboot = @import("boot/multiboot.zig");
 const log = @import("stdlib/log.zig");
 const drivers = @import("drivers.zig");
 const cpu = @import("cpu.zig");
+const stdlib = @import("stdlib.zig");
 
 pub export fn kernel_main(magic: u32, addr: u64) callconv(.c) noreturn {
     serial.init();
@@ -14,8 +15,7 @@ pub export fn kernel_main(magic: u32, addr: u64) callconv(.c) noreturn {
 
     drivers.init(&mbi);
 
-    cpu.int.int(1);
-    cpu.int.int(32);
+    stdlib.init();
 
     if (mbi.bootloader) |bname| {
         std.log.debug("Bootloader: {*}", .{bname});
@@ -43,6 +43,9 @@ pub export fn kernel_main(magic: u32, addr: u64) callconv(.c) noreturn {
     std.log.debug("fbaddr {*}", .{mbi.framebuffer.buffer});
 
     std.log.debug("pml4t: 0x{x:016}", .{cpu.paging.get_pml4t_addr()});
+
+    //    const test_alloc = stdlib.allocator.allocSentinel(u8, 1024, 0) catch @panic("Failed allocation");
+    //    stdlib.allocator.free(test_alloc);
 
     for (0..256) |j| {
         for (0..256) |i| {

@@ -50,6 +50,8 @@ pub fn build(b: *std.Build) void {
 
     exe.root_module.addCSourceFile(.{ .file = b.path("c-src/port.c") });
     exe.root_module.addCSourceFile(.{ .file = b.path("c-src/interrupts.c") });
+    exe.root_module.addCSourceFile(.{ .file = b.path("libs/buddy-alloc/buddy.c") });
+    exe.root_module.addIncludePath(b.path("libs/buddy-alloc/"));
 
     exe.setLinkerScript(b.path("linker.ld"));
 

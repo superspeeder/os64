@@ -48,7 +48,7 @@ const PageTable = extern struct {
 var pml4t: *align(4096) PageTable = undefined;
 
 var pdpt: PageTable align(4096) = undefined;
-var pdts: [4]PageTable align(4096) = undefined; // should remain packed since a page table is 4096 bytes long
+var pdts: [8]PageTable align(4096) = undefined; // should remain packed since a page table is 4096 bytes long
 
 pub fn init() void {
     const pml4ta = get_pml4t_addr();
@@ -81,7 +81,7 @@ pub fn init() void {
         .ps = false,
     };
 
-    inline for (0..4) |i| {
+    inline for (0..8) |i| {
         const pdt: *PageTable = &pdts[i];
         zeroTable(pdt);
         const gb = i << 30;

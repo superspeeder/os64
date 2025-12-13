@@ -1,0 +1,3 @@
+[submodule "libs/buddy-alloc"]
+	path = libs/buddy-alloc
+	url = https://github.com/superspeeder/buddy-alloc
