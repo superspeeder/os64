@@ -1,6 +1,7 @@
 const std = @import("std");
 
-var writer: std.Io.Writer = std.Io.Writer.Discarding;
+const default_log_out = std.Io.Writer.Discarding.init(&.{});
+var writer: std.Io.Writer = default_log_out.writer;
 
 pub fn logFn(
     comptime level: std.log.Level,
@@ -8,9 +9,15 @@ pub fn logFn(
     comptime format: []const u8,
     args: anytype,
 ) void {
-    writer.print("[{s}] - {s} - ", .{ @tagName(level), @tagName(scope) });
-    writer.print(format, args);
-    writer.writeByte('\n');
+    writer.print("[{s}] - {s} - ", .{ @tagName(level), @tagName(scope) }) catch {
+        return;
+    };
+    writer.print(format, args) catch {
+        return;
+    };
+    writer.writeByte('\n') catch {
+        return;
+    };
 }
 
 pub fn setLogOutput(output: std.Io.Writer) void {
@@ -26,27 +33,18 @@ fn hcf() noreturn {
 }
 
 pub fn panicFn(msg: []const u8, first_trace_addr: ?usize) noreturn {
-    try writer.writeAll("[PANIC] ") catch |e| {
-        _ = e;
-    };
+    errdefer hcf();
+
+    try writer.writeAll("[PANIC] ");
     if (first_trace_addr) |addr| {
-        try writer.writeAll("(0x") catch |e| {
-            _ = e;
-        };
+        try writer.writeAll("(0x");
         try writer.printInt(addr, 16, .lower, .{
             .width = 16,
             .fill = '0',
             .alignment = .right,
-        }) catch |e| {
-            _ = e;
-        };
-        try writer.write(") ") catch |e| {
-            _ = e;
-        };
+        });
+        _ = try writer.write(") ");
     }
-    try writer.writeAll(msg) catch |e| {
-        _ = e;
-    };
-
+    try writer.writeAll(msg);
     hcf();
 }

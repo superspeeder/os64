@@ -6,15 +6,25 @@ const drivers = @import("drivers");
 // Get the address of the 4th layer page table
 extern fn get_pml4t_addr() callconv(.c) u64;
 
+fn hcf() noreturn {
+    while (true) {
+        asm volatile ("hlt");
+    }
+}
+
 pub export fn kernel_main(magic: u32, addr: u64) callconv(.c) noreturn {
+    errdefer hcf();
+
     drivers.serial.init(); // initialize the serial driver so that we can get debug output.
+    klib.log.setLogOutput(drivers.serial.writer(&.{})); // Set the logger to use serial for output
+
     core.cpu.paging.init(get_pml4t_addr()); // immediately setup paging properly so we don't accidentally run into anything past the current 1GiB boundary.
     core.cpu.int.init(); // next, initialize interrupts.
     // Load the multiboot info
     const mbi = core.multiboot.loadMBI(magic, addr);
 
     // Initialize the kernel library (sets up important things like memory allocation).
-    klib.init();
+    try klib.init();
 
     // Initialize drivers.
     drivers.init(&mbi);

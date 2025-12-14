@@ -52,7 +52,7 @@ pub fn init(pmp4t_addr: u64) void {
         @panic("Misaligned level 4 page map");
     }
 
-    pmp4t_addr = @alignCast(@as(*align(4096) PageTable, @ptrFromInt(pmp4t_addr)));
+    pml4t = @alignCast(@as(*align(4096) PageTable, @ptrFromInt(pmp4t_addr)));
 
     // Identity map the first 4 GiB of physical address space
     // Instead of trying to reuse the old page table, we can just make a new one
